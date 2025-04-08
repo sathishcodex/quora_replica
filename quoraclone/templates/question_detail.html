@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ question.title }}</h2>
+<p>{{ question.content }}</p>
+<p><strong>Tags:</strong> {{ question.tags }}</p>
+<p><em>Asked by {{ question.author.username }} on {{ question.created_at }}</em></p>
+
+<form action="{% url 'like_question' question.pk %}" method="POST" class="my-2">
+    {% csrf_token %}
+    {% if user in question.likes.all %}
+        <button class="btn btn-sm btn-danger" type="submit">Unlike ({{ question.total_likes }})</button>
+    {% else %}
+        <button class="btn btn-sm btn-outline-primary" type="submit">Like ({{ question.total_likes }})</button>
+    {% endif %}
+</form>
+
+<hr>
+
+<h4>Answers</h4>
+{% for answer in question.answers.all %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <p>{{ answer.content }}</p>
+            <small>By {{ answer.author.username }} | {{ answer.created_at }}</small>
+        </div>
+    </div>
+{% empty %}
+    <p>No answers yet.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+    <hr>
+    <h5>Write an Answer</h5>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success">Post Answer</button>
+    </form>
+{% else %}
+    <p><a href="{% url 'login' %}">Login</a> to answer.</p>
+{% endif %}
+
+{% endblock %}
